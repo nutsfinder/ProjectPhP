@@ -1,3 +1,54 @@
+<?php
+session_start(); // Start session for session management
+
+// Include database connection
+require_once 'dbconnect.php';
+
+// Initialize error variable
+$error = ""; // Set default error as an empty string
+
+// Check if form is submitted
+if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+    // Get form inputs and sanitize
+    $email = trim($_POST['email']);
+    $password = trim($_POST['password']);
+
+    // Validate inputs
+    if (!empty($email) && !empty($password)) {
+        // Prepare SQL query to select user by email
+        $stmt = $pdo->prepare("SELECT id, email, password, name FROM user WHERE email = :email");
+        $stmt->bindParam(':email', $email);
+        $stmt->execute();
+
+        // Check if the email exists in the database
+        if ($stmt->rowCount() > 0) {
+            $user = $stmt->fetch(PDO::FETCH_ASSOC);
+            
+            // Verify password
+            if (password_verify($password, $user['password'])) {
+                // Password is correct, create session variables
+                $_SESSION['user_id'] = $user['id'];
+                $_SESSION['email'] = $user['email'];
+                $_SESSION['name'] = $user['name'];  // Store user's name in session
+
+                // Redirect to dashboard or protected page
+                header('Location: index.php');
+                exit();
+            } else {
+                // Incorrect password
+                $error = "Invalid email or password.";
+            }
+        } else {
+            // Email not found
+            $error = "Invalid email or password.";
+        }
+    } else {
+        $error = "Please enter both email and password.";
+    }
+}
+
+?>
+
 <!doctype html>
 <html lang="en">
 
@@ -10,11 +61,10 @@
 </head>
 
 <body>
-  <!--  Body Wrapper -->
-  <div class="page-wrapper" id="main-wrapper" data-layout="vertical" data-navbarbg="skin6" data-sidebartype="full"
+ <!-- Body Wrapper -->
+ <div class="page-wrapper" id="main-wrapper" data-layout="vertical" data-navbarbg="skin6" data-sidebartype="full"
     data-sidebar-position="fixed" data-header-position="fixed">
-    <div
-      class="position-relative overflow-hidden radial-gradient min-vh-100 d-flex align-items-center justify-content-center">
+    <div class="position-relative overflow-hidden radial-gradient min-vh-100 d-flex align-items-center justify-content-center">
       <div class="d-flex align-items-center justify-content-center w-100">
         <div class="row justify-content-center w-100">
           <div class="col-md-8 col-lg-6 col-xxl-3">
@@ -23,30 +73,34 @@
                 <a href="./index.html" class="text-nowrap logo-img text-center d-block py-3 w-100">
                   <img src="assets/images/logos/image.png" width="240" height="75" alt="">
                 </a>
-                <p class="text-center">Your Financial Campagnien</p>
-                <form>
+                <p class="text-center">Your Financial Campaign</p>
+                
+                <!-- Login Form -->
+                <form method="POST" action="login.php">
                   <div class="mb-3">
-                    <label for="exampleInputEmail1" class="form-label">Username</label>
-                    <input type="email" class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp">
+                    <label for="exampleInputEmail1" class="form-label">Email</label>
+                    <input type="email" class="form-control" id="exampleInputEmail1" name="email" required>
                   </div>
                   <div class="mb-4">
                     <label for="exampleInputPassword1" class="form-label">Password</label>
-                    <input type="password" class="form-control" id="exampleInputPassword1">
+                    <input type="password" class="form-control" id="exampleInputPassword1" name="password" required>
                   </div>
+
+                  <!-- Error Message -->
+                  <?php if ($error): ?>
+                    <div class="alert alert-danger">
+                      <?= $error; ?>
+                    </div>
+                  <?php endif; ?>
+
                   <div class="d-flex align-items-center justify-content-between mb-4">
                     <div class="form-check">
                       <input class="form-check-input primary" type="checkbox" value="" id="flexCheckChecked" checked>
-                      <label class="form-check-label text-dark" for="flexCheckChecked">
-                        Remeber this Device
-                      </label>
+                      <label class="form-check-label text-dark" for="flexCheckChecked">Remember this Device</label>
                     </div>
-                    <a class="text-primary fw-bold" href="./index.html">Forgot Password ?</a>
                   </div>
-                  <a href="./index.php" class="btn btn-primary w-100 py-8 fs-4 mb-4">Sign In</a>
-                  <div class="d-flex align-items-center justify-content-center">
-                    <p class="fs-4 mb-0 fw-bold">New to SeoDash?</p>
-                    <a class="text-primary fw-bold ms-2" href="./authentication-register.html">Create an account</a>
-                  </div>
+
+                  <button type="submit" class="btn btn-primary w-100 py-8 fs-4 mb-4">Sign In</button>
                 </form>
               </div>
             </div>
@@ -55,9 +109,10 @@
       </div>
     </div>
   </div>
+
+  <!-- JS Files -->
   <script src="assets/libs/jquery/dist/jquery.min.js"></script>
   <script src="assets/libs/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/iconify-icon@1.0.8/dist/iconify-icon.min.js"></script>
-</body>
-
+  </body>
 </html>
