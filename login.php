@@ -1,52 +1,47 @@
 <?php
-session_start(); // Start session for session management
+session_start(); // Start session at the top
 
-// Include database connection
 require_once 'dbconnect.php';
 
-// Initialize error variable
-$error = ""; // Set default error as an empty string
+$error = ""; // Initialize error variable
 
-// Check if form is submitted
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-    // Get form inputs and sanitize
     $email = trim($_POST['email']);
     $password = trim($_POST['password']);
 
-    // Validate inputs
     if (!empty($email) && !empty($password)) {
-        // Prepare SQL query to select user by email
-        $stmt = $pdo->prepare("SELECT id, email, password, name FROM user WHERE email = :email");
+        $stmt = $pdo->prepare("SELECT id_client, email, password, name, last_name FROM client WHERE email = :email");
         $stmt->bindParam(':email', $email);
         $stmt->execute();
 
-        // Check if the email exists in the database
         if ($stmt->rowCount() > 0) {
-            $user = $stmt->fetch(PDO::FETCH_ASSOC);
+            $client = $stmt->fetch(PDO::FETCH_ASSOC);
             
-            // Verify password
-            if (password_verify($password, $user['password'])) {
-                // Password is correct, create session variables
-                $_SESSION['user_id'] = $user['id'];
-                $_SESSION['email'] = $user['email'];
-                $_SESSION['name'] = $user['name'];  // Store user's name in session
+            if (password_verify($password, $client['password'])) {
+                $_SESSION['client_id'] = $client['id_client'];
+                $_SESSION['email'] = $client['email'];
+                $_SESSION['name'] = $client['name'];
+                $_SESSION['last_name'] = $client['last_name'];
 
-                // Redirect to dashboard or protected page
+                // Debug: Check session variables
+                echo '<pre>';
+                print_r($_SESSION);
+                echo '</pre>';
+                exit();
+
+                // Redirect after successful login
                 header('Location: index.php');
                 exit();
             } else {
-                // Incorrect password
                 $error = "Invalid email or password.";
             }
         } else {
-            // Email not found
             $error = "Invalid email or password.";
         }
     } else {
         $error = "Please enter both email and password.";
     }
 }
-
 ?>
 
 <!doctype html>
@@ -55,7 +50,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>SeoDash Free Bootstrap Admin Template by Adminmart</title>
+  <title>Login - SeoDash</title>
   <link rel="shortcut icon" type="image/png" href="assets/images/logos/seodashlogo.png" />
   <link rel="stylesheet" href="assets/css/styles.min.css" />
 </head>
@@ -101,6 +96,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                   </div>
 
                   <button type="submit" class="btn btn-primary w-100 py-8 fs-4 mb-4">Sign In</button>
+                  <div class="d-flex align-items-center justify-content-center">
+                    <p class="fs-4 mb-0 fw-bold">You Don't have an Account?</p>
+                    <a class="text-primary fw-bold ms-2" href="./signup.php"> Signup</a>
+                  </div>
                 </form>
               </div>
             </div>
@@ -114,5 +113,5 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
   <script src="assets/libs/jquery/dist/jquery.min.js"></script>
   <script src="assets/libs/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/iconify-icon@1.0.8/dist/iconify-icon.min.js"></script>
-  </body>
+</body>
 </html>

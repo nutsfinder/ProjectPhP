@@ -3,7 +3,7 @@
       <!-- Sidebar scroll-->
       <div>
         <div class="brand-logo d-flex align-items-center justify-content-between">
-          <a href="./index.html" class="text-nowrap logo-img">
+          <a href="./index.php" class="text-nowrap logo-img">
             <img src="assets/images/logos/image.png" width="200" height="65" alt="" />
           </a>
           <div class="close-btn d-xl-none d-block sidebartoggler cursor-pointer" id="sidebarCollapse">
@@ -30,6 +30,14 @@
               <span class="hide-menu">Accounting</span>
             </li>
             <li class="sidebar-item">
+              <a class="sidebar-link" href="./ui-typography.html" aria-expanded="false">
+                <span>
+                  <iconify-icon icon="solar:user-plus-rounded-bold-duotone" class="fs-6"></iconify-icon>
+                </span>
+                <span class="hide-menu">Clients</span>
+              </a>
+            </li> 
+            <li class="sidebar-item">
               <a class="sidebar-link" href="./contracts.php" aria-expanded="false">
                 <span>
                   <iconify-icon icon="solar:file-text-bold-duotone" class="fs-6"></iconify-icon>
@@ -53,14 +61,7 @@
                 <span class="hide-menu">Companies</span>
               </a>
             </li>
-            <li class="sidebar-item">
-              <a class="sidebar-link" href="./ui-typography.html" aria-expanded="false">
-                <span>
-                  <iconify-icon icon="solar:text-field-focus-bold-duotone" class="fs-6"></iconify-icon>
-                </span>
-                <span class="hide-menu">Typography</span>
-              </a>
-            </li> 
+            
         </nav>
         <!-- End Sidebar navigation -->
       </div>
