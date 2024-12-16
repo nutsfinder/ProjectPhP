@@ -1,19 +1,25 @@
 <?php
 class Database {
-    private $host = 'localhost';
-    private $db_name = 'project';
-    private $username = 'root';
-    private $password = '';
-    public $conn;
+    private static $instance = null;
+    private $pdo;
 
-    public function connect() {
-        $this->conn = null;
+    private function __construct() {
         try {
-            $this->conn = new PDO("mysql:host=" . $this->host . ";dbname=" . $this->db_name, $this->username, $this->password);
-            $this->conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+            $this->pdo = new PDO('mysql:host=localhost;dbname=project;charset=utf8', 'root', '');
+            $this->pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
         } catch (PDOException $e) {
-            echo "Connection error: " . $e->getMessage();
+            die("Database connection failed: " . $e->getMessage());
         }
-        return $this->conn;
+    }
+
+    public static function getInstance() {
+        if (self::$instance === null) {
+            self::$instance = new Database();
+        }
+        return self::$instance;
+    }
+
+    public function getConnection() {
+        return $this->pdo;
     }
 }
